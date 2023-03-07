@@ -1,6 +1,11 @@
 package ecs
 
+import (
+	"github.com/google/uuid"
+)
+
 type ISystem interface {
-	GetId() string
+	GetName() string
+	GetId() uuid.UUID
 	Update()
 }

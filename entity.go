@@ -2,58 +2,55 @@ package ecs
 
 import (
 	"errors"
-	"fmt"
+	"log"
+
+	"github.com/google/uuid"
 )
 
 type IEntity interface {
 	GetWorld() *IWorld
-	GetId() string
-	AddComponent(cmp IComponent) error
+	GetId() uuid.UUID
+	GetOwnerID() uuid.UUID
+	GetPossessedID() uuid.UUID
+	AddComponent(cmp Component) error
 	HaveComponent(cn string) bool
-	GetComponent(id string) (*IComponent, error)
-	GetComponents() []*IComponent
+	GetComponent(id string) *Component
+	GetComponents() []*Component
 	GetComposition() []string
+	UpdateComponents([]*Component)
 	HaveComposition([]string) bool
-}
-
-type ModelEntity struct {
-	Id         string                    `json:"id"`
-	Components map[string]ModelComponent `json:"components"`
+	GetStructure() *Entity
 }
 
 type Entity struct {
-	Id         string
-	World      *IWorld
-	Components []*IComponent
+	Id          uuid.UUID `json:"id"`
+	OwnerID     uuid.UUID `json:"ownerId"` // ClientID
+	PossessedID uuid.UUID `json:"possessedId"`
+	World       *IWorld
+	Components  []*Component `json:"components"`
 }
 
-func (entity *Entity) GetId() string {
+// Remove Cyclique Structure from type Entity caused by *World qui contient lui même l'entité
+type EntityNoCycle struct {
+	Id          uuid.UUID    `json:"id"`
+	OwnerID     uuid.UUID    `json:"ownerId"`
+	PossessedID uuid.UUID    `json:"possessedId"`
+	Components  []*Component `json:"components"`
+}
+
+func (entity *Entity) GetId() uuid.UUID {
 	return entity.Id
 }
 
-func CEntity(world *IWorld, id string, components []*IComponent) *Entity {
-	return &Entity{
-		Id:         id,
-		World:      world,
-		Components: components,
-	}
+func (entity *Entity) GetOwnerID() uuid.UUID {
+	return entity.OwnerID
 }
 
-func CEntityFromData(world *IWorld, data ModelEntity) *Entity {
-	var components []*IComponent
-
-	for k, v := range data.Components {
-		components = append(components, CreateComponent(k, v))
-	}
-
-	return &Entity{
-		Id:         data.Id,
-		World:      world,
-		Components: components,
-	}
+func (entity *Entity) GetPossessedID() uuid.UUID {
+	return entity.PossessedID
 }
 
-func (entity *Entity) AddComponent(cmp IComponent) error {
+func (entity *Entity) AddComponent(cmp Component) error {
 	// Check if we already have a component with same id
 	var foundId int = -1
 
@@ -71,6 +68,71 @@ func (entity *Entity) AddComponent(cmp IComponent) error {
 	}
 }
 
+// Si un composant spécifié dans l'argument n'existe pas alors on en crée un sur l'entité cible
+func (entity *Entity) UpdateComponents(components []*Component) {
+	for _, c := range components {
+		baseComponent := entity.GetComponent(c.GetId())
+
+		if baseComponent != nil {
+			if baseComponent.Id == "position" {
+				// Ici un middleware pour interpoler l'état de l'entité afin d'avoir un rendu plus fluide
+				destinationPosition, destinationPositionOk := c.Data.(map[string]interface{})
+				if !destinationPositionOk {
+					log.Println("Could not parse ")
+					baseComponent.Data = c.Data
+					continue
+				}
+
+				basePosition, basePositionOk := baseComponent.Data.(map[string]interface{})
+				if !basePositionOk {
+					log.Println("Could not parse ")
+					baseComponent.Data = c.Data
+					continue
+				}
+
+				dx, xOk := destinationPosition["x"].(float64)
+				if !xOk {
+					log.Println("Could not parse x to float64")
+					continue
+				}
+
+				dy, yOk := destinationPosition["y"].(float64)
+				if !yOk {
+					log.Println("Could not print y to float64")
+					continue
+				}
+
+				bx, xOk := basePosition["x"].(float64)
+				if !xOk {
+					log.Println("Could not parse x to float64")
+					continue
+				}
+
+				by, yOk := basePosition["y"].(float64)
+				if !yOk {
+					log.Println("Could not print y to float64")
+					continue
+				}
+
+				mutatedX := InterpolateFloat64(bx, dx, 0.7)
+				mutatedY := InterpolateFloat64(by, dy, 0.7)
+
+				mutatedPosition := destinationPosition
+
+				mutatedPosition["x"] = mutatedX
+				mutatedPosition["y"] = mutatedY
+
+				baseComponent.Data = mutatedPosition
+
+			} else {
+				baseComponent.Data = c.Data
+			}
+		} else {
+			entity.AddComponent(*c)
+		}
+	}
+}
+
 func (entity *Entity) HaveComponent(cn string) bool {
 	for _, component := range entity.Components {
 		componentLocalised := *component
@@ -81,25 +143,17 @@ func (entity *Entity) HaveComponent(cn string) bool {
 	return false
 }
 
-func (entity *Entity) GetComponent(id string) (cmp *IComponent, err error) {
-	var foundId int = -1
-
-	for idx, component := range entity.GetComponents() {
+func (entity *Entity) GetComponent(id string) (cmp *Component) {
+	for _, component := range entity.GetComponents() {
 		componentLocalised := *component
 		if componentLocalised.GetId() == id {
-			foundId = idx
+			cmp = component
 		}
 	}
-	if foundId != -1 {
-		cmp = entity.Components[foundId]
-	} else {
-		err = fmt.Errorf("Component %s not found", id)
-	}
-
-	return cmp, err
+	return cmp
 }
 
-func (entity *Entity) GetComponents() (components []*IComponent) {
+func (entity *Entity) GetComponents() (components []*Component) {
 	return entity.Components
 }
 
@@ -126,4 +180,38 @@ func (entity *Entity) HaveComposition(composition []string) bool {
 
 func (entity *Entity) GetWorld() *IWorld {
 	return entity.World
+}
+
+func (entity *Entity) GetStructure() *Entity {
+	return entity
+}
+
+func CEntity(world *IWorld, id uuid.UUID, components []*Component) *IEntity {
+	var newEntity IEntity = &Entity{
+		Id:         id,
+		World:      world,
+		Components: components,
+	}
+	return &newEntity
+}
+
+func CEntityWithOwner(world *IWorld, id uuid.UUID, ownerId uuid.UUID, components []*Component) *IEntity {
+	var newEntity IEntity = &Entity{
+		Id:         id,
+		World:      world,
+		OwnerID:    ownerId,
+		Components: components,
+	}
+	return &newEntity
+}
+
+func CEntityPossessed(world *IWorld, id uuid.UUID, possessedByID uuid.UUID, components []*Component) *IEntity {
+	var newEntity IEntity = &Entity{
+		Id:          id,
+		World:       world,
+		OwnerID:     possessedByID,
+		PossessedID: possessedByID,
+		Components:  components,
+	}
+	return &newEntity
 }

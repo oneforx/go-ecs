@@ -2,30 +2,32 @@ package ecs
 
 type IComponent interface {
 	GetId() string
-	GetData(name string) interface{}
-	SetData(name string, v interface{})
+	GetData() interface{}
+	SetData(v interface{})
+	GetStructure() *Component
 }
-
-type ModelComponent map[string]interface{}
 
 type Component struct {
-	Id   string
-	Data map[string]interface{}
+	Id   string      `json:"id"`
+	Data interface{} `json:"data"`
 }
 
-func CreateComponent(id string, data map[string]interface{}) *IComponent {
-	var component IComponent = &Component{Id: id, Data: data}
-	return &component
+func CreateComponent(id string, data interface{}) *Component {
+	return &Component{Id: id, Data: data}
 }
 
 func (p *Component) GetId() string {
 	return p.Id
 }
 
-func (p *Component) GetData(name string) interface{} {
-	return p.Data[name]
+func (p *Component) GetData() interface{} {
+	return p.Data
 }
 
-func (p *Component) SetData(name string, v interface{}) {
-	p.Data[name] = v
+func (p *Component) SetData(v interface{}) {
+	p.Data = v
+}
+
+func (p *Component) GetStructure() *Component {
+	return p
 }
