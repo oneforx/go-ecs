@@ -4,7 +4,7 @@ type IComponent interface {
 	GetId() Identifier
 	GetData() interface{}
 	SetData(v interface{})
-	GetStructure() *Component
+	GetStruct() *Component
 }
 
 type Component struct {

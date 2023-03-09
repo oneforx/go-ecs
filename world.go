@@ -8,9 +8,13 @@ import (
 )
 
 type IWorld interface {
-	GetId() string
+	GetId() Identifier
+
+	GetLibraryManager() *LibraryManager
+
 	AddEntity(*IEntity) *FeedBack
 	AddEntities([]Entity) *FeedBack
+
 	GetEntity(uuid.UUID) *IEntity
 	GetEntities() []*IEntity
 	GetEntitiesNoCycle() []EntityNoCycle
@@ -40,14 +44,19 @@ type IWorld interface {
 }
 
 type World struct {
-	Id            string
-	Entities      []*IEntity
-	Systems       []*ISystem
-	entitiesMutex sync.RWMutex
+	Id             Identifier
+	Entities       []*IEntity
+	Systems        []*ISystem
+	entitiesMutex  sync.RWMutex
+	LibraryManager *LibraryManager
 }
 
-func (world *World) GetId() string {
+func (world *World) GetId() Identifier {
 	return world.Id
+}
+
+func (world *World) GetLibraryManager() *LibraryManager {
+	return world.LibraryManager
 }
 
 func (world *World) AddEntity(entity *IEntity) (err *FeedBack) {
@@ -215,7 +224,7 @@ func (world *World) GetEntitiesWithComposition(composition Composition) (entitie
 	defer world.entitiesMutex.Unlock()
 	for _, entity := range world.GetEntities() {
 		entityLocalised := *entity
-		if entityLocalised.HaveComposition(composition) {
+		if entityLocalised.HaveComposition(composition.Value) {
 			entities = append(entities, entity)
 		}
 	}
@@ -225,7 +234,7 @@ func (world *World) GetEntitiesWithComposition(composition Composition) (entitie
 func (world *World) GetEntitiesWithStrictComposition(composition Composition) (entities []*IEntity) {
 	for _, entity := range world.GetEntities() {
 		entityLocalised := *entity
-		if len(composition) == len(entityLocalised.GetComponents()) && entityLocalised.HaveComposition(composition) {
+		if len(composition.Value) == len(entityLocalised.GetComponents()) && entityLocalised.HaveComposition(composition.Value) {
 			entities = append(entities, entity)
 		}
 	}

@@ -2,7 +2,6 @@ package ecs
 
 import (
 	"errors"
-	"log"
 
 	"github.com/google/uuid"
 )
@@ -80,59 +79,7 @@ func (entity *Entity) UpdateComponents(components []*Component) {
 		baseComponent := entity.GetComponent(c.GetId())
 
 		if baseComponent != nil {
-			if baseComponent.Id.Path == "position" {
-				// Ici un middleware pour interpoler l'état de l'entité afin d'avoir un rendu plus fluide
-				destinationPosition, destinationPositionOk := c.Data.(map[string]interface{})
-				if !destinationPositionOk {
-					log.Println("Could not parse ")
-					baseComponent.Data = c.Data
-					continue
-				}
-
-				basePosition, basePositionOk := baseComponent.Data.(map[string]interface{})
-				if !basePositionOk {
-					log.Println("Could not parse ")
-					baseComponent.Data = c.Data
-					continue
-				}
-
-				dx, xOk := destinationPosition["x"].(float64)
-				if !xOk {
-					log.Println("Could not parse x to float64")
-					continue
-				}
-
-				dy, yOk := destinationPosition["y"].(float64)
-				if !yOk {
-					log.Println("Could not print y to float64")
-					continue
-				}
-
-				bx, xOk := basePosition["x"].(float64)
-				if !xOk {
-					log.Println("Could not parse x to float64")
-					continue
-				}
-
-				by, yOk := basePosition["y"].(float64)
-				if !yOk {
-					log.Println("Could not print y to float64")
-					continue
-				}
-
-				mutatedX := InterpolateFloat64(bx, dx, 0.7)
-				mutatedY := InterpolateFloat64(by, dy, 0.7)
-
-				mutatedPosition := destinationPosition
-
-				mutatedPosition["x"] = mutatedX
-				mutatedPosition["y"] = mutatedY
-
-				baseComponent.Data = mutatedPosition
-
-			} else {
-				baseComponent.Data = c.Data
-			}
+			baseComponent.Data = c.Data
 		} else {
 			entity.AddComponent(*c)
 		}

@@ -22,17 +22,24 @@ func (fb *FeedBack) String() string {
 	return fmt.Sprintf("[%v][%v][%v][%v]: %v", fb.Type, fb.Host, fb.Job, fb.Label, fb.Comment)
 }
 
-type Composition []string
+type Composition struct {
+	Id    Identifier
+	Value []string
+}
+
+func (source Composition) Len() int {
+	return len(source.Value)
+}
 
 func (source Composition) Equals(target Composition) bool {
-	if len(source) != len(target) {
+	if source.Len() != target.Len() {
 		return false
 	}
 	seen := make(map[string]bool)
-	for _, s := range source {
+	for _, s := range source.Value {
 		seen[s] = true
 	}
-	for _, t := range target {
+	for _, t := range target.Value {
 		if !seen[t] {
 			return false
 		}

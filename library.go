@@ -1,57 +1,128 @@
 package ecs
 
-import "fmt"
+import "errors"
 
 type ILibrary interface {
 	GetId() Identifier
 	GetStruct() Library
+
+	GetCompositions() []Composition
 	GetComponents() []Component
 	GetSystems() []ISystem
-	AddComponent(Component)
-	AddSystem(ISystem)
-}
 
+	RegisterSystem(ISystem) error
+	RegisterSystems([]ISystem) error
+
+	RegisterComponent(Component) error
+	RegisterComponents([]Component) error
+	RegisterComposition(Composition) error
+	RegisterCompositions([]Composition) error
+}
 type Library struct {
 	Id           Identifier
 	components   []Component
 	systems      []ISystem
-	compositions map[Identifier]Composition
+	compositions []Composition
 }
 
-func (library *Library) GetId() Identifier {
-	return library.Id
+func (lib Library) GetId() Identifier {
+	return lib.Id
 }
 
-func (library *Library) AddSystem(system ISystem) {
-	library.systems = append(library.systems, system)
+func (lib Library) GetStruct() Library {
+	return lib
 }
 
-func (library *Library) AddComposition(id Identifier, composition Composition) error {
-	compositionFound, ok := library.compositions[id]
-	if !ok {
-		library.compositions[id] = composition
-		return nil
-	} else {
-		return fmt.Errorf("composition %s found", compositionFound)
+func (lib Library) GetCompositions() []Composition {
+	return lib.compositions
+}
+
+func (lib Library) GetComponents() []Component {
+	return lib.components
+}
+
+func (lib Library) GetSystems() []ISystem {
+	return lib.systems
+}
+
+func (lib *Library) RegisterSystem(system ISystem) error {
+	if lib.systemExists(system) {
+		return errors.New("system already exists")
 	}
+	lib.systems = append(lib.systems, system)
+	return nil
 }
 
-func (library *Library) SetCompositions(compositions map[Identifier]Composition) {
-	library.compositions = compositions
+func (lib *Library) RegisterSystems(systems []ISystem) error {
+	for _, system := range systems {
+		if lib.systemExists(system) {
+			return errors.New("system already exists")
+		}
+	}
+	lib.systems = append(lib.systems, systems...)
+	return nil
 }
 
-func (library *Library) AddComponent(component Component) {
-	library.components = append(library.components, component)
+func (lib *Library) RegisterComponent(component Component) error {
+	if lib.componentExists(component.Id) {
+		return errors.New("component already exists")
+	}
+	lib.components = append(lib.components, component)
+	return nil
 }
 
-func (library *Library) GetComponents() []Component {
-	return library.components
+func (lib *Library) RegisterComponents(components []Component) error {
+	for _, component := range components {
+		if lib.componentExists(component.Id) {
+			return errors.New("component already exists")
+		}
+	}
+	lib.components = append(lib.components, components...)
+	return nil
 }
 
-func (library *Library) GetSystems() []ISystem {
-	return library.systems
+func (lib *Library) RegisterComposition(composition Composition) error {
+	if lib.compositionExists(composition.Id) {
+		return errors.New("composition already exists")
+	}
+	lib.compositions = append(lib.compositions, composition)
+	return nil
 }
 
-func (library *Library) GetStruct() Library {
-	return *library
+func (lib *Library) RegisterCompositions(compositions []Composition) error {
+	for _, composition := range compositions {
+		if lib.compositionExists(composition.Id) {
+			return errors.New("composition already exists")
+		}
+		lib.compositions = append(lib.compositions, composition)
+	}
+	return nil
+}
+
+func (lib Library) componentExists(id Identifier) bool {
+	for _, component := range lib.components {
+		if component.Id == id {
+			return true
+		}
+	}
+	return false
+}
+
+func (lib Library) systemExists(system ISystem) bool {
+	for _, s := range lib.systems {
+		if s.GetId() == system.GetId() {
+			return true
+		}
+	}
+	return false
+}
+
+func (lib Library) compositionExists(id Identifier) bool {
+	for _, composition := range lib.compositions {
+		if composition.Id == id {
+			return true
+		}
+	}
+
+	return false
 }
