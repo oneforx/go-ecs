@@ -25,11 +25,11 @@ jobs:
         if: always()
         uses: stegzilla/discord-notify@v2
         with:
-          webhook_url: ${{ secrets.DISCORD_GOECS_WEBHOOK }}
+          webhook_url: ${{ env.DISCORD_GOECS_WEBHOOK }}
           title: Go Ecs Test
           message: ${{ job.status }}
           include_image: true
           avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
           username: GoEcs PR Test
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DISCORD_GOECS_WEBHOOK: ${{ secrets.DISCORD_GOECS_WEBHOOK }}
