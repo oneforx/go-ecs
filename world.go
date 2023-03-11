@@ -43,6 +43,7 @@ type IWorld interface {
 	// FR: Obtiens les entités qui ont au moins la composition spécifié
 	//     Retourne une tranche de pointeurs IEntity.
 	GetEntitiesWithComposition(Composition) []*IEntity
+	// Update a list of component of the entity
 	UpdateEntityComponents(uuid.UUID, []*Component) *FeedBack
 	// Remove an entity by his instanceId
 	RemoveEntity(uuid.UUID) *FeedBack
