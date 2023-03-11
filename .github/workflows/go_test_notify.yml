@@ -1,0 +1,30 @@
+name: Go Test
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.17
+    - name: Run Tests
+      run: go test -v ./...
+    - name: Send Notification
+      if: always()
+      uses: rtCamp/action-slack-notify@v2
+      with:
+        status: ${{ job.status }}
+        fields: repo,message,author,commit
+        channel: <https://discord.com/api/webhooks/1083967202706866186/r2DusEsA7VpIahSMqygkxSE31bBqew02xAvKGvMaTfOm0rO2OlZ-cMfK75_vTrgRPJCA>
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
