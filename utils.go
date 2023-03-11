@@ -31,8 +31,3 @@ func EntityNoCycleArrayToEntityArray(world IWorld, entitiesNoCycle []EntityNoCyc
 	}
 	return entities
 }
-
-// factor should be between 0 & 1
-func InterpolateFloat64(currentFloat, targetFloat, interpolateFactor float64) float64 {
-	return currentFloat + (targetFloat-currentFloat)*interpolateFactor
-}

@@ -1,4 +1,5 @@
-package ecs
+// Package that describe an Entity-Component-System World
+package goecs
 
 import (
 	"log"
@@ -37,9 +38,13 @@ type IWorld interface {
 	GetEntitiesWithComposition(Composition) []*IEntity
 	UpdateEntityComponents(uuid.UUID, []*Component) *FeedBack
 	RemoveEntity(uuid.UUID) *FeedBack
+
+	// Ajoute un système, veuillez ajouter une structure Système qui implémente l'interface ISystem
 	AddSystem(*ISystem)
+	//
 	GetSystemById(Identifier) *ISystem
 	RemoveSystem(Identifier) *FeedBack
+
 	// Execute toutes les methods UpdateClient des systèmes lié à ce monde
 	UpdateClient()
 	// Execute toutes les methods UpdateServer des systèmes lié à ce monde

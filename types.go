@@ -47,6 +47,9 @@ func (source Composition) Equals(target Composition) bool {
 	return true
 }
 
+// Identifier enable the possibility to have two object with the same path but with a different namespace
+// Example, a mod could add "mymod:position" and "anothermod:position"
+// You can call World.GetEntityByComponentId("mymod:position")
 type Identifier struct {
 	Namespace string `json:"namespace"`
 	Path      string `json:"path"`
