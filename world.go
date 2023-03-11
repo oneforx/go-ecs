@@ -18,6 +18,7 @@ type IWorld interface {
 	// Ajoute une liste d'entité
 	AddEntities([]Entity) *FeedBack
 
+	// Retourne une entité par son instance ID
 	GetEntity(uuid.UUID) *IEntity
 	GetEntities() []*IEntity
 	GetEntitiesNoCycle() []EntityNoCycle
