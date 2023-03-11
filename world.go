@@ -13,6 +13,7 @@ type IWorld interface {
 
 	GetLibraryManager() *LibraryManager
 
+	// Ajoute une entité
 	AddEntity(*IEntity) *FeedBack
 	AddEntities([]Entity) *FeedBack
 
