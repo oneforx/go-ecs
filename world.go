@@ -25,6 +25,7 @@ type IWorld interface {
 
 	// Return des une copie de toute les entité sans cycle (sans référence au monde qui référence encore toute les entité, c'est infini pour type *IEntity)
 	GetEntitiesNoCycle() []EntityNoCycle
+	// Add entities in the world from an array of Entity without cycle reference
 	AddEntitiesFromEntitiesNoCycle(entitiesNoCycle []EntityNoCycle)
 	// UUID should be an external ID maybe a ClientID
 	GetEntitiesPossessedBy(uuid.UUID) []*IEntity
