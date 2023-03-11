@@ -20,6 +20,7 @@ type IWorld interface {
 
 	// Retourne une entité par son instance ID
 	GetEntity(uuid.UUID) *IEntity
+	// Get all entities instantiated in the world
 	GetEntities() []*IEntity
 	GetEntitiesNoCycle() []EntityNoCycle
 	AddEntitiesFromEntitiesNoCycle(entitiesNoCycle []EntityNoCycle)
