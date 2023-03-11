@@ -44,6 +44,7 @@ type IWorld interface {
 	//     Retourne une tranche de pointeurs IEntity.
 	GetEntitiesWithComposition(Composition) []*IEntity
 	UpdateEntityComponents(uuid.UUID, []*Component) *FeedBack
+	// Remove an entity by his instanceId
 	RemoveEntity(uuid.UUID) *FeedBack
 
 	// Ajoute un système, veuillez ajouter une structure Système qui implémente l'interface ISystem
