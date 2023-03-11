@@ -3,10 +3,10 @@ name: Go Test
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
     branches:
-      - main
+      - master
 
 jobs:
   build:
@@ -22,13 +22,13 @@ jobs:
         run: go test -v ./...
       - name: Send Notification
         if: always()
-        uses: technotechi/discord-notify-action@v1
+        uses: stegzilla/discord-notify@v2
         with:
-          url: ${{ secrets.DISCORD_GOECS_WEBHOOK }}
-          title: Go Test
-          description: ${{ job.status }}
-          author_name: ${{ github.actor }}
-          author_icon: ${{ github.avatar_url }}
-          fields: repo,message,author,commit
+          webhook_url: ${{ secrets.DISCORD_GOECS_WEBHOOK }}
+          title: Go Ecs Test
+          message: ${{ job.status }}
+          include_image: true
+          avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+          username: GoEcs PR Test
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
