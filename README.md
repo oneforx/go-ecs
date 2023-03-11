@@ -1,2 +1,2 @@
 # go-ecs
-An Entity Component System
+An Entity Component System, ConcurrentEnabled
