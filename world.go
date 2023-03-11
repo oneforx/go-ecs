@@ -15,6 +15,7 @@ type IWorld interface {
 
 	// Ajoute une entité
 	AddEntity(*IEntity) *FeedBack
+	// Ajoute une liste d'entité
 	AddEntities([]Entity) *FeedBack
 
 	GetEntity(uuid.UUID) *IEntity
