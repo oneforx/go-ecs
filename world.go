@@ -40,7 +40,10 @@ type IWorld interface {
 	AddSystem(*ISystem)
 	GetSystemById(Identifier) *ISystem
 	RemoveSystem(Identifier) *FeedBack
-	Update()
+	// Execute toutes les methods UpdateClient des systèmes lié à ce monde
+	UpdateClient()
+	// Execute toutes les methods UpdateServer des systèmes lié à ce monde
+	UpdateServer()
 }
 
 type World struct {
@@ -325,9 +328,16 @@ func (world *World) RemoveSystem(id Identifier) (err *FeedBack) {
 	return nil
 }
 
-func (world *World) Update() {
+func (world *World) UpdateClient() {
 	for _, system := range world.GetSystems() {
 		systemLocalised := *system
-		systemLocalised.Update()
+		systemLocalised.UpdateClient()
+	}
+}
+
+func (world *World) UpdateServer() {
+	for _, system := range world.GetSystems() {
+		systemLocalised := *system
+		systemLocalised.UpdateServer()
 	}
 }

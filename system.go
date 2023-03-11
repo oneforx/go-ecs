@@ -4,10 +4,21 @@ import (
 	"fmt"
 )
 
+type SIDE string
+
+const (
+	SERVER SIDE = "SERVER"
+	CLIENT SIDE = "CLIENT"
+	HYBRID SIDE = "HYBRID"
+)
+
 type ISystem interface {
 	GetName() string
 	GetId() Identifier
-	Update()
+	// Retourne si le système est un système HYBRID, CLIENT, SERVER
+	GetSide() SIDE
+	UpdateClient()
+	UpdateServer()
 	Init(*IWorld)
 	Listen(string, func(...interface{}) error) error
 	Call(string, ...interface{}) error
@@ -16,8 +27,13 @@ type ISystem interface {
 type System struct {
 	Id        Identifier
 	Name      string
+	Type      SIDE
 	World     *IWorld
 	listening map[string]func(...interface{}) error
+}
+
+func (ss *System) GetType() SIDE {
+	return ss.Type
 }
 
 func (ss *System) Listen(id string, handler func(...interface{}) error) error {
