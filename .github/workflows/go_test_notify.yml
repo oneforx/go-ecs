@@ -25,6 +25,7 @@ jobs:
       with:
         status: ${{ job.status }}
         fields: repo,message,author,commit
-        channel: <https://discord.com/api/webhooks/1083967202706866186/r2DusEsA7VpIahSMqygkxSE31bBqew02xAvKGvMaTfOm0rO2OlZ-cMfK75_vTrgRPJCA>
+        channel: ${{ env.DISCORD_GOECS_WEBHOOK }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        DISCORD_GOECS_WEBHOOK: ${{ secrets.DISCORD_GOECS_WEBHOOK }}
