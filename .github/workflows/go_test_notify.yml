@@ -1,31 +1,34 @@
 name: Go Test
+
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
-      - master
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Setup Go
-      uses: actions/setup-go@v2
-      with:
-        go-version: 1.17
-    - name: Run Tests
-      run: go test -v ./...
-    - name: Send Notification
-      if: always()
-      uses: rtCamp/action-slack-notify@v2
-      with:
-        status: ${{ job.status }}
-        fields: repo,message,author,commit
-        channel: ${{ env.DISCORD_GOECS_WEBHOOK }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        DISCORD_GOECS_WEBHOOK: ${{ secrets.DISCORD_GOECS_WEBHOOK }}
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+      - name: Run Tests
+        run: go test -v ./...
+      - name: Send Notification
+        if: always()
+        uses: technotechi/discord-notify-action@v1
+        with:
+          url: ${{ secrets.DISCORD_GOECS_WEBHOOK }}
+          title: Go Test
+          description: ${{ job.status }}
+          author_name: ${{ github.actor }}
+          author_icon: ${{ github.avatar_url }}
+          fields: repo,message,author,commit
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
