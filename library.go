@@ -2,6 +2,7 @@ package goecs
 
 import "errors"
 
+// A library system to store content
 type ILibrary interface {
 	GetId() Identifier
 	GetStruct() Library
