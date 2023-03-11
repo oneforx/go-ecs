@@ -11,8 +11,6 @@ import (
 type IWorld interface {
 	GetId() Identifier
 
-	GetLibraryManager() *LibraryManager
-
 	// Ajoute une entité
 	AddEntity(*IEntity) *FeedBack
 	// Ajoute une liste d'entité
@@ -61,19 +59,14 @@ type IWorld interface {
 }
 
 type World struct {
-	Id             Identifier
-	Entities       []*IEntity
-	Systems        []*ISystem
-	entitiesMutex  sync.RWMutex
-	LibraryManager *LibraryManager
+	Id            Identifier
+	Entities      []*IEntity
+	Systems       []*ISystem
+	entitiesMutex sync.RWMutex
 }
 
 func (world *World) GetId() Identifier {
 	return world.Id
-}
-
-func (world *World) GetLibraryManager() *LibraryManager {
-	return world.LibraryManager
 }
 
 func (world *World) AddEntity(entity *IEntity) (err *FeedBack) {
