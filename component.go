@@ -1,4 +1,4 @@
-package ecs
+package goecs
 
 type IComponent interface {
 	GetId() Identifier

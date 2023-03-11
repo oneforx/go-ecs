@@ -1,4 +1,4 @@
-package ecs
+package goecs
 
 func EntityToNoCycle(entity *IEntity) EntityNoCycle {
 	entityLocalised := *entity
